@@ -1,2 +1,0 @@
-jsonobject
-couchdbkit==0.5.7
