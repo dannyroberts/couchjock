@@ -1,9 +1,9 @@
-import unittest
+import unittest2
 from couchdbkit import Server
 import couchjock
 
 
-class BasicTestCase(unittest.TestCase):
+class BasicTestCase(unittest2.TestCase):
     server_url = 'http://localhost:5984/'
     db_name = 'couchjock__test'
 
