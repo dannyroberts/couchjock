@@ -1,3 +1,4 @@
+from operator import attrgetter
 import unittest2
 from couchdbkit import Server
 import couchdbkit
@@ -48,6 +49,35 @@ class CouchjockTestCase(unittest2.TestCase):
             'string': None,
             'boolean': True,
         })
+
+        foo1._doc.update({'boolean': False})
+        self.assertEqual(foo1.boolean, False)
+
+    def _individual_save(self, docs):
+        for doc in docs:
+            doc.save()
+
+    def _bulk_save(self, docs):
+        self.db.bulk_save(docs)
+
+    def _test_simple_view(self, save_fn):
+        class Foo(self.schema.Document):
+            _db = self.db
+            string = self.schema.StringProperty()
+        foo1 = Foo(string='fun one')
+        foo2 = Foo(string='poop')
+        save_fn([foo1, foo2])
+
+        self.assertEqual(
+            map(lambda x: x.to_json(), Foo.view('_all_docs', include_docs=True).all()),
+            map(lambda x: x.to_json(), sorted([foo1, foo2], key=attrgetter('_id')))
+        )
+
+    def test_simple_view(self):
+        self._test_simple_view(self._individual_save)
+
+    def test_bulk_save(self):
+        self._test_simple_view(self._bulk_save)
 
 
 class CouchdbkitTestCase(CouchjockTestCase):
