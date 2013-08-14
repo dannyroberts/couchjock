@@ -138,4 +138,11 @@ class DocumentBase(DocumentSchema):
 
 
 class Document(DocumentBase, schema.QueryMixin, schema.AttachmentMixin):
-    pass
+
+    @property
+    def get_id(self):
+        return self._id
+
+    @property
+    def get_rev(self):
+        return self._rev
