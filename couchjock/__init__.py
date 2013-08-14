@@ -1,7 +1,9 @@
+import copy
 import functools
 from jsonobject import *
 from couchdbkit import schema
 from restkit import ResourceNotFound
+from couchjock.proxy_dict import ProxyDict
 
 SchemaProperty = ObjectProperty
 SchemaListProperty = ListProperty
@@ -17,7 +19,7 @@ class DocumentSchema(JsonObject):
 
     @property
     def _doc(self):
-        return self._obj
+        return ProxyDict(self, self._obj)
 
 
 class DocumentBase(DocumentSchema):
@@ -28,14 +30,14 @@ class DocumentBase(DocumentSchema):
 
     _db = None
 
-    # The rest of this class is mostly copied from couchdbkit 0.5.7
-
     def to_json(self):
-        doc = super(DocumentBase, self).to_json()
-        for special in ('_id', '_rev'):
-            if doc[special] is None:
+        doc = copy.copy(super(DocumentBase, self).to_json())
+        for special in ('_id', '_rev', '_attachments'):
+            if not doc[special]:
                 del doc[special]
         return doc
+
+    # The rest of this class is mostly copied from couchdbkit 0.5.7
 
     @classmethod
     def set_db(cls, db):
